@@ -13,14 +13,13 @@ class GeminiProvider(BaseLLMProvider):
     """Google Gemini API provider."""
     
     name = "gemini"
-    default_model = "gemini-2.0-flash"
+    default_model = "gemini-2.5-flash-lite"
     
     AVAILABLE_MODELS = [
-        "gemini-2.0-flash",
-        "gemini-2.0-flash-lite",
-        "gemini-1.5-pro",
-        "gemini-1.5-flash",
-        "gemini-1.5-flash-8b",
+        "gemini-3.5-flash",
+        "gemini-3.1-flash-lite",
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
     ]
     
     def __init__(self, api_key: str, model: Optional[str] = None):
