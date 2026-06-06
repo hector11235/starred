@@ -1,7 +1,7 @@
 {
   "generated_at": "2026-06-06T20:04:25.706889",
   "llm_provider": "gemini",
-  "llm_model": "gemini-2.0-flash",
+  "llm_model": "gemini-2.5-flash",
   "total_repos": 65,
   "category_count": 16,
   "categories": {
