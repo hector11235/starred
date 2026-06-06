@@ -95,30 +95,30 @@ jobs:
             echo "No previous cache, will categorize"
           fi
       
-			  - name: Categorize repositories
-	        if: steps.check-changes.outputs.changes == 'true' || inputs.force_recategorize
-	        env:
-	          GH_USERNAME: ${{ github.repository_owner }}
-	          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-	          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-	          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-	        run: |
-	          PROVIDER_ARG="--provider gemini"
-	          
-	          PREFS="${{ inputs.preferences }}"
-	          if [ -z "$PREFS" ]; then
-	            # We explicitly add formatting structural guardrails into the prompt preferences
-	            PREFS="Organize repositories for a developer. Return valid, parseable JSON mapping every single repository to one of the 16 defined categories. Do not omit repos or nest JSON in markdown tags."
-	          fi
-	          
-	          starred categorize \
-	            --input data/starred_cache.json \
-	            --output-dir . \
-	            --preferences "$PREFS" \
-	            $PROVIDER_ARG
-	          
-	          # Save current cache as previous for next run
-	          cp data/starred_cache.json data/previous_cache.json
+      - name: Categorize repositories
+        if: steps.check-changes.outputs.changes == 'true' || inputs.force_recategorize
+        env:
+          GH_USERNAME: ${{ github.repository_owner }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          PROVIDER_ARG="--provider gemini"
+          
+          PREFS="${{ inputs.preferences }}"
+          if [ -z "$PREFS" ]; then
+            # We explicitly add formatting structural guardrails into the prompt preferences
+            PREFS="Organize repositories for a developer. Return valid, parseable JSON mapping every single repository to one of the 16 defined categories. Do not omit repos or nest JSON in markdown tags."
+          fi
+          
+          starred categorize \
+            --input data/starred_cache.json \
+            --output-dir . \
+            --preferences "$PREFS" \
+            $PROVIDER_ARG
+          
+          # Save current cache as previous for next run
+          cp data/starred_cache.json data/previous_cache.json
       
       - name: Commit and push changes
         run: |
