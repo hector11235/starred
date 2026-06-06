@@ -1,18 +1,13 @@
 name: Update Starred Repos
 
 on:
-  # Run daily at 2 AM UTC
   schedule:
     - cron: '0 2 * * *'
-  
-  # Run on push to main (for testing)
   push:
     branches: [main]
     paths:
       - 'src/**'
       - '.github/workflows/update-starred.yml'
-  
-  # Manual trigger
   workflow_dispatch:
     inputs:
       preferences:
@@ -26,8 +21,6 @@ on:
         type: choice
         options:
           - auto
-          - anthropic
-          - openai
           - gemini
       force_recategorize:
         description: 'Force full recategorization'
@@ -54,7 +47,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ env.env.PYTHON_VERSION || '3.11' }}
           cache: 'pip'
       
       - name: Install dependencies
@@ -99,25 +92,14 @@ jobs:
         if: steps.check-changes.outputs.changes == 'true' || inputs.force_recategorize
         env:
           GH_USERNAME: ${{ github.repository_owner }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          PROVIDER_ARG="--provider gemini"
-          
-          PREFS="${{ inputs.preferences }}"
-          if [ -z "$PREFS" ]; then
-            # We explicitly add formatting structural guardrails into the prompt preferences
-            PREFS="Organize repositories for a developer. Return valid, parseable JSON mapping every single repository to one of the 16 defined categories. Do not omit repos or nest JSON in markdown tags."
-          fi
-          
           starred categorize \
             --input data/starred_cache.json \
             --output-dir . \
-            --preferences "$PREFS" \
-            $PROVIDER_ARG
+            --preferences "Return valid, parseable JSON mapping every single repository to one of the 16 defined categories. Do NOT wrap the output inside markdown blocks like \`\`\`json. Output raw text ONLY." \
+            --provider gemini
           
-          # Save current cache as previous for next run
           cp data/starred_cache.json data/previous_cache.json
       
       - name: Commit and push changes
