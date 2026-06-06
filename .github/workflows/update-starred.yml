@@ -1,13 +1,18 @@
 name: Update Starred Repos
 
 on:
+  # Run daily at 2 AM UTC
   schedule:
     - cron: '0 2 * * *'
+  
+  # Run on push to main (for testing)
   push:
     branches: [main]
     paths:
       - 'src/**'
       - '.github/workflows/update-starred.yml'
+  
+  # Manual trigger
   workflow_dispatch:
     inputs:
       preferences:
@@ -47,7 +52,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.env.PYTHON_VERSION || '3.11' }}
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
       
       - name: Install dependencies
@@ -97,8 +102,8 @@ jobs:
           starred categorize \
             --input data/starred_cache.json \
             --output-dir . \
-            --preferences "Return valid, parseable JSON mapping every single repository to one of the 16 defined categories. Do NOT wrap the output inside markdown blocks like \`\`\`json. Output raw text ONLY." \
-            --provider gemini
+            --provider gemini \
+            --model gemini-2.5-flash
           
           cp data/starred_cache.json data/previous_cache.json
       
